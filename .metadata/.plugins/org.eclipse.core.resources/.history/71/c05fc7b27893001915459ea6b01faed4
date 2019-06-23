@@ -1,0 +1,32 @@
+package com.fil.contribution.model;
+
+public class FileValidationModel {
+	private boolean isFileBlank = true;
+	private boolean isFileContainSpecialChar;
+	private StringBuffer specialCharacterCellContent = new StringBuffer();
+
+	public boolean isFileBlank() {
+		return isFileBlank;
+	}
+
+	public void setFileBlank(boolean isFileBlank) {
+		this.isFileBlank = isFileBlank;
+	}
+
+	public boolean isFileContainSpecialChar() {
+		return isFileContainSpecialChar;
+	}
+
+	public void setFileContainSpecialChar(boolean isFileContainSpecialChar) {
+		this.isFileContainSpecialChar = isFileContainSpecialChar;
+	}
+
+	public StringBuffer getSpecialCharacterCellContent() {
+		return specialCharacterCellContent;
+	}
+
+	public void setSpecialCharacterCellContent(String specialCharacterCellContent) {
+		this.specialCharacterCellContent.append(specialCharacterCellContent);
+	}
+
+}

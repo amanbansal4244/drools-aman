@@ -1,0 +1,35 @@
+package com.fil.contribution.implementationLayer.formats;
+
+import com.fil.contribution.utility.FileValidationUtilHelper;
+
+/**
+ * This factory creates instances of classes that implements the 'FileTypeIntf'
+ * interface.
+ *
+ *
+ * @version 1.0
+ * @author aman bansal
+ **/
+public class FileTypeFactory {
+	/**
+	 * Returns an implementation of a interface object based upon the supplied
+	 * arguments.
+	 *
+	 * @param readerType
+	 *            Implementation of interface that is desired.
+	 **/
+	public static FileTypeIntf getReader(String readerType) {
+		FileTypeIntf fileType = null;
+
+		if (readerType.equalsIgnoreCase("XML")) {
+			// reader = new XMLFileTypeImpl();
+		} else if (readerType.equalsIgnoreCase("EXCEL")) {
+			// reader = new EXCELFileTypeImpl();
+		} else if (readerType.equalsIgnoreCase("CSV")) {
+			fileType = new CSVFileTypeImpl();
+			CSVFileTypeImpl csvReader = (CSVFileTypeImpl) fileType;
+			csvReader.setFileValidationUtilHelper(new FileValidationUtilHelper());
+		}
+		return fileType;
+	}
+}

@@ -1,0 +1,23 @@
+INDEX VERSION 1.130+/Users/bansal/Desktop/StudyMaterial/Workspace/drools-training-master/.metadata/.plugins/org.eclipse.jdt.core
+699183540.index
+3148117784.index
+2015385626.index
+1369100502.index
+928154446.index
+2633473774.index
+3192135194.index
+243284700.index
+2509291571.index
+1840823911.index
+3114935750.index
+949466126.index
+163421088.index
+866772938.index
+325607445.index
+3231761431.index
+2600740447.index
+1971901054.index
+1116616024.index
+2479358651.index
+3502860308.index
+1363472653.index

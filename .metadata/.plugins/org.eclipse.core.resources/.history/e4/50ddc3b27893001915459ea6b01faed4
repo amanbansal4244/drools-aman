@@ -1,0 +1,151 @@
+package com.fil.contribution.validation;
+
+import java.io.UnsupportedEncodingException;
+import java.text.Normalizer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class SpecialCharValidation {
+
+	public static void main(String[] args) {
+		
+		try {
+			System.out.println(isSpecialCharacter("a".getBytes()));
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public static byte[] checkSpecialCharacters(byte[] inputfeed) {
+		String fileRead = new String(inputfeed);
+
+		Pattern l_Pattern = Pattern.compile("[!\\*\\?]");
+		Matcher l_Matcher = l_Pattern.matcher(fileRead);
+
+		boolean checkExists = l_Matcher.find();
+		if (checkExists) {
+			return String.valueOf(checkExists).getBytes();
+		}
+
+		checkExists = checkSequence(fileRead);
+
+		return String.valueOf(checkExists).getBytes();
+
+	}
+
+	private static boolean checkSequence(String fileRead) {
+		String[] invalidSeq = { "..", "--", "x20", "x00", "x04", "x04", "x0a", "x0d", "x1b", "x08", "x7f", "*%", "<>" };
+		boolean checkExists = false;
+		for (int i = 0; i < invalidSeq.length; i++) {
+			checkExists = fileRead.contains(invalidSeq[i]);
+			if (checkExists) {
+				break;
+			}
+		}
+
+		return checkExists;
+	}
+
+	private static byte[] replaceSpecialCharacter(byte[] inputfeed) {
+		String fileRead = null;
+		byte[] convertedFile = (byte[]) null;
+
+		try {
+			fileRead = new String(inputfeed, "UTF-8");
+			String nfdNormalizedString = Normalizer.normalize(fileRead, Normalizer.Form.NFD);
+
+			Pattern l_Pattern = Pattern.compile("[\\p{InCombiningDiacriticalmarks}]+");
+			fileRead = l_Pattern.matcher(nfdNormalizedString).replaceAll(" ");
+
+			fileRead = fileRead.replaceAll("[?]", "t");
+
+			convertedFile = fileRead.getBytes("UTF-8");
+
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return convertedFile;
+
+	}
+
+	public static boolean isSpecialCharacter(byte[] inputfeed) throws UnsupportedEncodingException {
+
+		byte[] replacedStr = replaceSpecialCharacter(inputfeed);
+		boolean hasSpecialChar;
+
+		String fileRead = new String(replacedStr, "UTF-8");
+		
+		/**
+		 * ^ -> Matches the beginning of the line.
+		 * $ -> Matches the end of the line.
+		 */
+		//Pattern l_Pattern = Pattern.compile("^[\\`\"a-zA-Z0-9 +:\\-@#~.\\',\\(\\)%\\&_\\$\\/\t]*$", 10);
+		
+		Pattern l_Pattern = Pattern.compile("^[\\`\"+:\\-@#~.\\',\\(\\)%\\&_\\$\\/\t]*$", 10);
+		Matcher l_Matcher = l_Pattern.matcher(fileRead);
+
+		boolean checkExists = l_Matcher.find();
+		if (checkExists) {
+			byte[] spclCharacters = checkSpecialCharacters(replacedStr);
+			String spclCharacterReturn = new String(spclCharacters, "UTF-8");
+
+			if (spclCharacterReturn.equals("true")) {
+				hasSpecialChar = Boolean.TRUE;
+			} else {
+				hasSpecialChar = Boolean.FALSE;
+			}
+		} else {
+			hasSpecialChar = Boolean.TRUE;
+		}
+
+		return hasSpecialChar;
+
+	}
+
+	public static boolean checkValidCharacters(byte[] inputfeed) {
+
+		String fileRead = null;
+		boolean chkExists = false;
+
+		try {
+			fileRead = new String(inputfeed, "UTF-8");
+			Pattern l_Pattern = Pattern.compile("^[a-zA-Z0-]*$", 2);
+
+			Matcher l_Matcher = l_Pattern.matcher(fileRead);
+			chkExists = l_Matcher.find();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+
+		return chkExists;
+
+	}
+
+	public static byte[] isValidDate(byte[] inputfeed) throws UnsupportedEncodingException {
+
+		String input = new String(inputfeed, "UTF-8");
+		String[] l_inputString = input.split(";");
+		String l_fileData = l_inputString[0];
+		String l_incmngDateFormat = l_inputString[1];
+		String l_outGngDateFormat = l_inputString[2];
+
+		SimpleDateFormat format = new SimpleDateFormat(l_incmngDateFormat);
+		SimpleDateFormat outGoingformat = new SimpleDateFormat(l_outGngDateFormat);
+
+		format.setLenient(false);
+		outGoingformat.setLenient(false);
+
+		try {
+			Date date = format.parse(l_fileData);
+			byte[] returnDate = outGoingformat.format(date).getBytes("UTF-8");
+			return returnDate;
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return "false".getBytes("UTF-8");
+
+	}
+}

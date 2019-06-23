@@ -1,0 +1,42 @@
+package com.fil.contribution.abstractionLayer.formats;
+
+import java.io.File;
+import java.io.IOException;
+
+import com.fil.contribution.exception.NotSupportedFileFormatException;
+import com.fil.contribution.implementationLayer.formats.FileTypeIntf;
+import com.fil.contribution.model.FileValidationModel;
+
+/**
+ *
+ * @description : This is an abstraction layer.So that we can decouple
+ *              abstraction from an implementation layer and can developed
+ *              abstraction independently and client code can access only the
+ *              abstraction part without being concerned about the
+ *              implementation part. This class can be used to process the input
+ *              file and display the all special character.
+ * 
+ * @author aman bansal
+ */
+public abstract class FileTypeAbstract {
+
+	protected FileTypeIntf fileTypeintf;
+
+	/**
+	 * @description This API helps to process the input file.
+	 * 
+	 * @param File
+	 *            file
+	 * @throws NotSupportedFileFormatException
+	 * @throws IOException
+	 */
+	abstract public FileValidationModel validateFile(File file) throws NotSupportedFileFormatException, IOException, Exception;
+
+	/**
+	 * @description This API helps to display all special character.
+	 * 
+	 * @throws NotSupportedFileFormatException
+	 */
+	abstract public void displayAllSpecialCharacter(FileValidationModel fileValidationModel) throws NotSupportedFileFormatException;
+
+}

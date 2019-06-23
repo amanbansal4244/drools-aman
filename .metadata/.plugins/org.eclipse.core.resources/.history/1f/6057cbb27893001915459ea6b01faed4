@@ -1,0 +1,26 @@
+package com.fil.contribution.abstractionLayer.formats;
+
+import java.io.File;
+import java.io.IOException;
+
+import com.fil.contribution.exception.NotSupportedFileFormatException;
+import com.fil.contribution.implementationLayer.formats.FileTypeIntf;
+import com.fil.contribution.model.FileValidationModel;
+
+public class FileTypeAbstractImpl extends FileTypeAbstract {
+
+	public FileTypeAbstractImpl(FileTypeIntf fileTypeIntf) {
+		super.fileTypeintf = fileTypeIntf;
+	}
+
+	@Override
+	public FileValidationModel validateFile(File file) throws NotSupportedFileFormatException, IOException,Exception {
+		return fileTypeintf.validateFile(file);
+	}
+
+	@Override
+	public void displayAllSpecialCharacter(FileValidationModel fileValidationModel) throws NotSupportedFileFormatException {
+		fileTypeintf.displayAllSpecialCharacter(fileValidationModel);
+	}
+
+}

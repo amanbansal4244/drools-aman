@@ -1,0 +1,33 @@
+package com.fil.contribution.validation;
+
+import java.io.File;
+import java.io.IOException;
+
+import com.fil.contribution.abstractionLayer.formats.FileTypeAbstract;
+import com.fil.contribution.abstractionLayer.formats.FileTypeAbstractImpl;
+import com.fil.contribution.exception.NotSupportedFileFormatException;
+import com.fil.contribution.implementationLayer.formats.FileTypeFactory;
+import com.fil.contribution.implementationLayer.formats.FileTypeIntf;
+import com.fil.contribution.model.FileValidationModel;
+
+public class FileValidation {
+
+	public static FileValidationModel validateAfterOpeningFile(File file)
+			throws NotSupportedFileFormatException, IOException, Exception {
+		FileValidationModel fileValidationModel = null;
+		try {
+		if (file.exists()) {
+			FileTypeIntf fileTypeObject = FileTypeFactory
+					.getReader(FileWrapper.getFileExtension(FileWrapper.getFileName(file)));
+			FileTypeAbstract fileTypeAbstract = new FileTypeAbstractImpl(fileTypeObject);
+			fileValidationModel = fileTypeAbstract.validateFile(file);
+			fileTypeAbstract.displayAllSpecialCharacter(fileValidationModel);
+		}
+		}catch(IOException ioe) {
+			throw ioe;
+		}catch(Exception e) {
+			throw e;
+		}
+		return fileValidationModel;
+	}
+}

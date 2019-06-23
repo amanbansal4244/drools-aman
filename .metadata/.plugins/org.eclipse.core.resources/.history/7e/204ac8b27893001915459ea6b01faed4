@@ -1,0 +1,148 @@
+package com.fil.contribution.implementationLayer.formats;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import com.fil.contribution.exception.NotSupportedFileFormatException;
+import com.fil.contribution.model.FileValidationModel;
+import com.fil.contribution.thread.FileValidationWorkerThread;
+import com.fil.contribution.utility.FileValidationUtilHelper;
+
+/**
+ *
+ * @description : This is an implementation of 'FileTypeIntf' which helps to
+ *              process the 'CSV' type input file.
+ * 
+ * @author aman bansal
+ */
+public class CSVFileTypeImpl implements FileTypeIntf {
+
+	protected FileValidationUtilHelper fileValidationUtilHelper;
+
+	public FileValidationUtilHelper getFileValidationUtilHelper() {
+		return fileValidationUtilHelper;
+	}
+
+	public void setFileValidationUtilHelper(FileValidationUtilHelper fileValidationUtilHelper) {
+		this.fileValidationUtilHelper = fileValidationUtilHelper;
+	}
+
+	@Override
+	public FileValidationModel validateFile(File file) throws NotSupportedFileFormatException, IOException, Exception {
+		BufferedReader bufferedReader = null;
+		ExecutorService executorService = null;
+		List<Callable<FileValidationModel>> taskList = new ArrayList<Callable<FileValidationModel>>();
+		List<Future<FileValidationModel>> futureTaskResult = null;
+		FileValidationModel fileValidationModel = null;
+		/**** Taking threads based on no of CPU processor +1 on server ****/
+		int numOfThreads = Runtime.getRuntime().availableProcessors() + 1;
+
+		try {
+			/****
+			 * Reading the file only once from main thread and will pass BufferedReader to
+			 * the worker thread
+			 ****/
+			bufferedReader = new BufferedReader(new FileReader(file));
+			executorService = Executors.newFixedThreadPool(numOfThreads);
+			/**
+			 * Initializing the worker thread. Passing BufferedReader to the worker thread
+			 * once , so that same common resource 'BufferedReader' will be shared to all
+			 * threads.
+			 * 
+			 **/
+			FileValidationWorkerThread filevalidationWorkerThread = new FileValidationWorkerThread(
+					fileValidationUtilHelper, bufferedReader);
+
+			/**
+			 * In this scenario, we should submit jobs as equals to number of threads to
+			 * ExecutorService and adding them to the 'Callable' list. So that all available
+			 * threads would read the file parallel.
+			 **/
+			for (int i = 0; i < numOfThreads; i++) {
+				taskList.add(filevalidationWorkerThread);
+			}
+
+			/**
+			 * Before java 8, We are waiting for completion of all tasks, which have been
+			 * submitted to ExecutorService. or Executes the given tasks, returning a list
+			 * of Futures holding their status and results when all complete.
+			 * 
+			 * Note: If we don't do this and directly submit the tasks in above for loop
+			 * like : executorService.submit(filevalidationWorkerThread);
+			 *
+			 * then what may happen, when you have only one record and we are creating
+			 * threads : Future<FileValidationModel> future = numOfThreads * 2 In this case,
+			 * only one thread will go and execute the business logic and others threads
+			 * will return empty object from 'call' method of worker thread one by one. It
+			 * can happen empty object would be returned when ever one threads gets finished
+			 * to the caller and get the empty object which is not expected. So we must wait
+			 * to all threads to complete.
+			 *
+			 * This problem may not occur for larger records in file.
+			 *
+			 * Note: Same thing we can achieve by using 'ExecutorCompletionService' in Java
+			 * 8
+			 *
+			 */
+			futureTaskResult = executorService.invokeAll(taskList);
+
+			for (Future<FileValidationModel> futureTask : futureTaskResult) {
+				try {
+					fileValidationModel = futureTask.get();
+				} catch (InterruptedException | ExecutionException e) {
+					throw e;
+				}
+				return fileValidationModel;
+
+			}
+
+		} catch (IOException e) {
+			throw e;
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			/**
+			 * We should shutdown the executorService after consuming the results from
+			 * future object else we will lost all the result which is present in future
+			 * object.
+			 * 
+			 * The shutdown() method doesn’t cause an immediate destruction of the
+			 * ExecutorService. It will make the ExecutorService stop accepting new tasks
+			 * and shut down after all running threads finish their current work.
+			 **/
+			executorService.shutdown();
+			try {
+				executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				throw e;
+			}
+
+			if (bufferedReader != null) {
+				try {
+					bufferedReader.close();
+				} catch (Exception e) {
+					throw e;
+				}
+			}
+		}
+
+		return fileValidationModel;
+	}
+
+	@Override
+	public void displayAllSpecialCharacter(FileValidationModel fileValidationModel) {
+		System.out.println("Special Character:" + fileValidationModel.getSpecialCharacterCellContent());
+	}
+
+}

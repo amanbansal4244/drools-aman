@@ -1,0 +1,60 @@
+package com.fil.contribution.thread;
+
+import java.io.BufferedReader;
+import java.util.concurrent.Callable;
+
+import com.fil.contribution.model.FileValidationModel;
+import com.fil.contribution.utility.FileValidationUtilHelper;
+
+public class FileValidationWorkerThread implements Callable<FileValidationModel> {
+
+	private FileValidationUtilHelper fileValidationUtilHelper;
+	private BufferedReader bufferedReader = null;
+	private FileValidationModel fileValidationModel;
+
+	public FileValidationWorkerThread(FileValidationUtilHelper fileValidationUtilHelper,
+			BufferedReader bufferedReader) {
+		super();
+		this.fileValidationUtilHelper = fileValidationUtilHelper;
+		this.bufferedReader = bufferedReader;
+		this.fileValidationModel = new FileValidationModel();
+	}
+
+	@Override
+	public FileValidationModel call() throws Exception {
+
+		if (Thread.currentThread().isInterrupted()) {
+			return fileValidationModel;
+		}
+
+		try {
+			if (bufferedReader != null) {
+				String line = " ";
+				//System.out.println(Thread.currentThread().getName());
+				/**
+				 * All threads would come at line "while ((line = bufferedReader.readLine()) != null) {" and wait till the time all
+				 * threads reaches at this line.
+				 * and 'bufferedReader.readLine()' will give each time new line to each thread and does business logic 
+				 * means. we don't need any lock (synchronized(bufferedReader)) on bufferedReader because 
+				 * 'bufferedReader.readLine()' gives new line each time.
+				 * 
+				 * In case of only one line in input file, all threads(let's say 4 threads) comes at this point and wait till the time 
+				 * all threads reaches at this line and only any of one threads go inside the business logic because 
+				 * 'bufferedReader.readLine()' will give null for other threads and other threads will return as it is 
+				 * 'FileValidationModel' object to the caller.
+				 * 
+				 */
+				while ((line = bufferedReader.readLine()) != null) {
+					//System.out.println("Executed business logic thread name:"+ Thread.currentThread().getName());
+					fileValidationModel = fileValidationUtilHelper.executeFileValidation(line.split(","),
+							fileValidationModel);
+				}
+			}
+		} catch (Exception e) {
+			Thread.currentThread().getThreadGroup().interrupt();
+			System.exit(0);
+		}
+
+		return fileValidationModel;
+	}
+}

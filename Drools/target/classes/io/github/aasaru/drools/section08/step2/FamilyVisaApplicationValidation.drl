@@ -1,0 +1,20 @@
+package io.github.aasaru.drools.section08
+
+import io.github.aasaru.drools.domain.InvalidPassport;
+import io.github.aasaru.drools.domain.Passport;
+import io.github.aasaru.drools.domain.InvalidFamilyVisaApplication;
+import io.github.aasaru.drools.domain.FamilyVisaApplication;
+
+import java.time.LocalDate;
+
+rule "Invalidate visa applications with invalid passport"
+	dialect "mvel"
+	when
+		$familyVisaApplication: FamilyVisaApplication( )
+		//If you use exists with a pattern, the rule will only activate at most once, regardless of how much data there is in working memory that matches the condition inside of the exists pattern. Since only the existence matters, no bindings will be established.
+		//means if once familyVisaApplication have InvalidPassport, this rule not be activate again.
+		exists InvalidPassport( $familyVisaApplication.passportNumbers.contains(this.passport.passportNumber) )
+	then
+		System.out.println( "Set " + $familyVisaApplication + " invalid as it contains invalid passport");
+		insert( new InvalidFamilyVisaApplication($familyVisaApplication) )
+end

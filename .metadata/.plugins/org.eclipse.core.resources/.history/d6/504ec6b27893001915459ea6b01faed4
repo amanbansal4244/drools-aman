@@ -1,0 +1,18 @@
+package com.fil.contribution.utility;
+
+import java.io.File;
+
+import com.fil.contribution.validation.FileWrapper;
+
+public class SaveFileHelper {
+
+	private final static String destPath = "/Users/bansal/Desktop/StudyMaterial/Workspace/Projects/FIL_Contribution";
+	public void saveFileAtDestination(File uploadFile, String fileName ) {
+		
+		File destFile = new File(destPath, FileWrapper.getFileNameWithoutExtension(uploadFile, fileName) + "_" +
+					System.currentTimeMillis()+
+					FileWrapper.getFileExtension(fileName));
+		
+		//FileUtils.copyFile(uploadFile, destFile);
+	}
+}

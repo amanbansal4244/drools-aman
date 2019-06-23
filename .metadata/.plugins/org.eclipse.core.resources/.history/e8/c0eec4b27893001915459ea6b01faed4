@@ -1,0 +1,42 @@
+package com.fil.contribution.validation;
+
+import java.io.File;
+
+public class FileWrapper {
+
+	public static String getFileName(File file) {
+		String fileName = null;
+		try {
+			if (file != null && file.exists()) {
+				fileName = file.getName();
+			}
+		} catch (Exception e) {
+			fileName = " ";
+		}
+		return fileName;
+	}
+
+	public static String getFileExtension(String fileName) {
+		String extension = " ";
+		try {
+			if (fileName != null) {
+				extension = fileName.substring(fileName.lastIndexOf('.') + 1, fileName.length());
+			}
+		} catch (Exception e) {
+			fileName = " ";
+		}
+		return extension;
+	}
+	
+	public static String getFileNameWithoutExtension(File file, String fileName ) {
+		String fileNameWithoutFileExtension = " ";
+		try {
+			if (file!=null && file.exists()) {
+				fileNameWithoutFileExtension = fileName.substring(0, fileName.lastIndexOf("."));
+			}
+		} catch (Exception e) {
+			fileNameWithoutFileExtension = " ";
+		}
+		return fileNameWithoutFileExtension;
+	}
+}
